@@ -2,30 +2,47 @@ using UnityEngine;
 
 public class CharacterMovementV2 : MonoBehaviour
 {
-    public float moveSpeed = 10.0f;
+   
+
+    public float moveSpeed = 2.0f;
     public float jumpForce = 10.0f;
-    private Rigidbody rigidbody;
+    private Rigidbody rigidbodyPlayer;
+
+    private Vector2 moveInput;
+    public LayerMask whatIsGround;
+    public Transform groundPoint;
+    private bool isGrounded;
+
+    public Animator animatorPlayer;
 
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rigidbodyPlayer = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        moveInput.x = Input.GetAxis("Horizontal");
+        moveInput.y = Input.GetAxis("Vertical");
+        moveInput.Normalize();
 
-        Vector3 moveDirection = new Vector3(horizontal, 0, vertical);
-        moveDirection = transform.TransformDirection(moveDirection);
-        moveDirection *= moveSpeed;
+        rigidbodyPlayer.velocity = new Vector3(moveInput.x * moveSpeed, rigidbodyPlayer.velocity.y, moveInput.y * moveSpeed);
 
-        rigidbody.velocity = new Vector3(moveDirection.x, rigidbody.velocity.y, moveDirection.z);
-
-        if (Input.GetKeyDown(KeyCode.Space) && rigidbody.velocity.y == 0)
+        RaycastHit hit;
+        if (Physics.Raycast(groundPoint.position, Vector3.down, out hit, .3f, whatIsGround))
         {
-            rigidbody.velocity = new Vector3(rigidbody.velocity.x, 0, rigidbody.velocity.z);
-            rigidbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            isGrounded = true;
+            Debug.Log("works");
         }
+        else
+        {
+            isGrounded = false;
+        }
+
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            rigidbodyPlayer.velocity += new Vector3(0f, jumpForce, 0f);
+        }
+        animatorPlayer.SetBool("onGround", isGrounded);
     }
 }
