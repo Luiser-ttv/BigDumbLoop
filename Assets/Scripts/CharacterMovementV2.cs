@@ -5,7 +5,7 @@ public class CharacterMovementV2 : MonoBehaviour
    
 
     public float moveSpeed = 2.0f;
-    public float jumpForce = 10.0f;
+    public float jumpForce = 5.0f;
     private Rigidbody rigidbodyPlayer;
 
     private Vector2 moveInput;
@@ -14,6 +14,10 @@ public class CharacterMovementV2 : MonoBehaviour
     private bool isGrounded;
 
     public Animator animatorPlayer;
+
+    public SpriteRenderer SRPlayer;
+
+    private bool movingBackwards;
 
     void Start()
     {
@@ -32,7 +36,7 @@ public class CharacterMovementV2 : MonoBehaviour
         if (Physics.Raycast(groundPoint.position, Vector3.down, out hit, .3f, whatIsGround))
         {
             isGrounded = true;
-            Debug.Log("works");
+            //Debug.Log("works");
         }
         else
         {
@@ -44,5 +48,24 @@ public class CharacterMovementV2 : MonoBehaviour
             rigidbodyPlayer.velocity += new Vector3(0f, jumpForce, 0f);
         }
         animatorPlayer.SetBool("onGround", isGrounded);
+
+        if (!SRPlayer.flipX && moveInput.x < 0)
+        {
+            SRPlayer.flipX = true;
+        }
+        else if (SRPlayer.flipX && moveInput.x > 0)
+        {
+            SRPlayer.flipX = false;
+        }
+
+        if (!movingBackwards && moveInput.y > 0)
+        {
+            movingBackwards = true;
+        }
+        else if (movingBackwards && moveInput.y < 0)
+        {
+            movingBackwards = false;
+        }
+        animatorPlayer.SetBool("movingBackwards", movingBackwards);
     }
 }
